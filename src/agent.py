@@ -1,19 +1,18 @@
 from langchain.agents import create_agent, AgentState
 from langgraph.checkpoint.memory import InMemorySaver
-from typing_extensions import NotRequired
 
 from src.llm import get_llm
 from src.tools import calculator
 from src.rag_tool import company_knowledge
+from src.requirements_tool import update_project_requirements
 
 
 class ProjectState(AgentState):
-    business_type: NotRequired[str]
-    project_type: NotRequired[str]
-    use_case: NotRequired[str]
-    budget: NotRequired[str]
-    timeline: NotRequired[str]
-
+    business_type: str | None
+    project_type: str | None
+    use_case: str | None
+    budget: str | None
+    timeline: str | None
 
 def get_agent():
 
@@ -26,7 +25,8 @@ def get_agent():
 
         tools=[
             calculator,
-            company_knowledge
+            company_knowledge,
+            update_project_requirements
         ],
 
         state_schema=ProjectState,
@@ -36,7 +36,7 @@ You are an AI Project Consultant for ctrlaltcrew.
 
 Your job is to understand a client's project requirements.
 
-Track these requirements in your state when the user provides them:
+Track these requirements:
 
 - business_type
 - project_type
@@ -44,28 +44,61 @@ Track these requirements in your state when the user provides them:
 - budget
 - timeline
 
-Important rules:
+IMPORTANT:
 
-1. Remember information the user has already provided.
-2. Do not ask for information that the user has already given.
-3. Ask only ONE relevant follow-up question at a time.
-4. Do not immediately recommend a package or give pricing unless the
-   user asks for it or enough requirements have been collected.
-5. Use company_knowledge for questions about:
-   - services
-   - pricing
-   - AI solutions
-   - project requirements
-   - development process
-   - FAQs
-   - support and maintenance
-6. Use calculator whenever mathematical calculation is required.
-7. Never invent company information.
-8. If the user asks what information you remember about their project,
-   summarize the requirements currently known.
-""",
+Whenever the user provides information about any of these
+requirements, ALWAYS call the update_project_requirements tool
+to save that information into the project state.
 
-        checkpointer=checkpointer
+For example:
+
+User: My business is an e-commerce store.
+
+Call:
+update_project_requirements(
+    business_type="e-commerce store"
+)
+
+User: I need an AI chatbot.
+
+Call:
+update_project_requirements(
+    project_type="AI chatbot"
+)
+
+User: It should handle customer support.
+
+Call:
+update_project_requirements(
+    use_case="customer support"
+)
+
+Remember information the user has already provided.
+
+Do not ask for information that the user has already given.
+
+Ask only ONE relevant follow-up question at a time.
+
+Do not immediately recommend a package or give pricing unless
+the user asks for it or enough requirements have been collected.
+
+Use company_knowledge for questions about:
+
+- services
+- pricing
+- AI solutions
+- project requirements
+- development process
+- FAQs
+- support and maintenance
+
+Use calculator whenever mathematical calculation is required.
+
+Never invent company information.
+
+If the user asks what you remember about their project,
+summarize the requirements currently stored in the project state.
+"""
     )
 
     return agent
@@ -87,7 +120,6 @@ if __name__ == "__main__":
         "It should handle customer support.",
         "My budget is around $3000.",
         "The project should be completed within 4 weeks.",
-        "What do you know about my project so far?"
     ]
 
     for message in messages:
