@@ -13,7 +13,7 @@ def get_retriever():
     )
 
     retriever = vector_store.as_retriever(
-        search_kwargs={"k": 3}
+        search_kwargs={"k": 6}
     )
 
     return retriever
@@ -22,7 +22,7 @@ def get_retriever():
 if __name__ == "__main__":
     retriever = get_retriever()
 
-    question = "How much does a RAG-based knowledge assistant cost?"
+    question = "What AI chatbot services, packages, pricing, and timelines does ctrlaltcrew offer?"
 
     documents = retriever.invoke(question)
 

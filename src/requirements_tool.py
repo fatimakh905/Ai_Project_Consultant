@@ -13,8 +13,29 @@ def update_project_requirements(
     runtime: ToolRuntime = None,
 ) -> Command:
     """
-    Save any project requirements provided by the user.
-    Existing requirements are preserved.
+    REQUIRED tool for saving project requirements.
+
+    Call this tool whenever the user provides ANY of these:
+    - business type
+    - project type
+    - use case
+    - budget
+    - timeline
+
+    IMPORTANT:
+    A message containing money, price, spending limit, or currency
+    MUST be saved using the budget parameter.
+
+    Examples:
+    "My budget is $3000" -> budget="$3000"
+    "I can spend 5000 USD" -> budget="5000 USD"
+    "Budget is 10 lakh PKR" -> budget="10 lakh PKR"
+
+    A message containing a deadline, duration, or completion time
+    MUST be saved using the timeline parameter.
+
+    Existing requirements must be preserved.
+    Only update fields that are explicitly provided.
     """
 
     current_requirements = dict(
@@ -37,7 +58,7 @@ def update_project_requirements(
         current_requirements["timeline"] = timeline
 
     print("REQUIREMENTS TOOL UPDATE:", current_requirements)  
-      
+
     return Command(
         update={
             "requirements": current_requirements,

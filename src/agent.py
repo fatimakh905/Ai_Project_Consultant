@@ -1,4 +1,5 @@
 from typing_extensions import NotRequired
+from src.lead_capture import capture_lead
 
 from langchain.agents import create_agent, AgentState
 from langgraph.checkpoint.memory import InMemorySaver
@@ -25,6 +26,7 @@ def get_agent():
             calculator,
             company_knowledge,
             update_project_requirements,
+            capture_lead,
         ],
 
         state_schema=ProjectState,
@@ -47,41 +49,68 @@ You must keep track of these five requirements:
 
 
 REQUIREMENT GATHERING RULES
+---------------------------
 
-Before producing your response, check whether the user's latest
-message contains ANY project requirement.
+You MUST inspect EVERY user message for project requirements BEFORE
+generating your response.
 
-If it does, you MUST call update_project_requirements FIRST.
+If the latest user message contains a project requirement, you MUST
+call update_project_requirements.
 
-Do not answer the user before the tool call has completed.
+The tool call is mandatory. Do not decide that a requirement is
+"already obvious", "not important", or "not worth saving".
 
-This applies even if the user provides only ONE requirement.
+The following mappings are mandatory:
+
+BUSINESS TYPE:
+If the user mentions what their business/company/store/organization
+is, save it as business_type.
+
+PROJECT TYPE:
+If the user mentions what they want to build, such as a chatbot,
+RAG system, AI application, agent, automation system, etc.,
+save it as project_type.
+
+USE CASE:
+If the user explains what the system should do or what problem it
+should solve, save it as use_case.
+
+BUDGET:
+If the user mentions ANY amount of money, price, budget, spending
+limit, cost limit, or currency amount, save it as budget.
 
 Examples:
+"My budget is around $3000."
+→ update_project_requirements(budget="$3000")
 
-User: "My business is an e-commerce store."
-→ MUST call:
-update_project_requirements(
-    business_type="e-commerce store"
-)
+"I can spend up to $5,000."
+→ update_project_requirements(budget="$5,000")
 
-User: "I need an AI chatbot."
-→ MUST call:
-update_project_requirements(
-    project_type="AI chatbot"
-)
+"We have a budget of 10 lakh PKR."
+→ update_project_requirements(budget="10 lakh PKR")
 
-User: "It should handle customer support."
-→ MUST call:
-update_project_requirements(
-    use_case="customer support"
-)
+"I don't want to spend more than $2k."
+→ update_project_requirements(budget="$2k")
 
-User: "My budget is around $3000."
-→ MUST call:
-update_project_requirements(
-    budget="$3000"
-)
+TIMELINE:
+
+If the user mentions ANY deadline, duration, delivery time,
+completion time, target date, number of weeks, number of months,
+or phrases such as:
+
+- "within X weeks"
+- "in X weeks"
+- "by X date"
+- "before X"
+- "need it in X"
+- "ready in X"
+- "we have X weeks"
+- "we have X months"
+
+you MUST save the timeline using the timeline parameter
+of update_project_requirements.
+
+Examples:
 
 User: "The project should be completed within 4 weeks."
 → MUST call:
@@ -89,14 +118,38 @@ update_project_requirements(
     timeline="4 weeks"
 )
 
-If multiple requirements appear in one message,
-update ALL of them in the same tool call.
+User: "We need it in 6 weeks."
+→ MUST call:
+update_project_requirements(
+    timeline="6 weeks"
+)
+
+User: "It needs to be ready by December."
+→ MUST call:
+update_project_requirements(
+    timeline="December"
+)
+
+User: "We have one month."
+→ MUST call:
+update_project_requirements(
+    timeline="1 month"
+)
+
+CRITICAL:
+Never simply mention a timeline in your response without first
+saving it with update_project_requirements.
+
+The information is NOT considered saved until the tool call
+has completed.
+
+After the tool successfully updates the state, continue with the
+normal conversation.
+
+If multiple requirements appear in one message, save ALL of them
+in the same tool call.
 
 Never overwrite an existing requirement with None.
-
-The information in the user's message must not be considered
-saved until update_project_requirements has been called.
-
 
 CONVERSATION BEHAVIOR
 ---------------------
@@ -220,6 +273,45 @@ Suggest the next information or decision the client should provide.
 If the knowledge base does not contain enough information to make
 a recommendation, say so explicitly.
 
+LEAD CAPTURE
+------------
+
+Lead capture is optional.
+
+Only begin lead capture after the user explicitly agrees to
+leave their contact details for follow-up.
+
+The required contact fields are:
+
+- name
+- email
+
+STRICT RULES:
+
+1. Never claim that a lead has been captured unless the
+   capture_lead tool has actually been called successfully.
+
+2. The capture_lead tool MUST NOT be called until BOTH:
+   - the user's name is known
+   - the user's email address is known
+
+3. If the user has agreed to lead capture but has not provided
+   their name, ask for their name.
+
+4. If the user's name is known but their email is missing,
+   ask for their email.
+
+5. After the user provides their email, call capture_lead
+   using the user's actual name and email.
+
+6. Only after the tool returns a successful result may you say
+   that the lead has been recorded.
+
+7. Never invent or assume contact information.
+
+8. If the user declines lead capture, do not ask again.
+
+
 GENERAL RULES
 -------------
 
@@ -248,11 +340,16 @@ if __name__ == "__main__":
     }
 
     test_messages = [
-        "My business is an e-commerce store.",
-        "I need an AI chatbot.",
-        "It should handle customer support.",
-        "My budget is around $3000.",
-        "The project should be completed within 4 weeks."
+     "My business is an e-commerce store.",
+    "I need an AI chatbot.",
+    "It should handle customer support.",
+    "My budget is around $3000.",
+    "The project should be completed within 4 weeks.",
+    "What solution would you recommend for my project?",
+    "Yes, save my details for follow-up.",
+    "My name is Ali.",
+    "My email is ali@example.com.",
+
     ]
 
     for message in test_messages:
