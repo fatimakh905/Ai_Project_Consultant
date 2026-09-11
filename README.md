@@ -58,7 +58,7 @@ The application has four major layers:
 
 ---
 
-# 🔄 How the System Works
+#  How the System Works
 
 ```mermaid
 flowchart LR
