@@ -1,1 +1,10 @@
+chroma_db/
+leads.csv
+*.csv
+
+# Secrets
 .env
+.venv/
+venv/
+__pycache__/
+*.pyc
