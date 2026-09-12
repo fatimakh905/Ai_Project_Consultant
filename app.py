@@ -26,7 +26,7 @@ st.set_page_config(
 BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "assets"
 
-ROBOT_PATH = ASSETS_DIR / "chatbot.json"
+ROBOT_PATH = ASSETS_DIR / "robot_hello.json"
 LOGO_PATH = ASSETS_DIR / "logo.png"
 
 
