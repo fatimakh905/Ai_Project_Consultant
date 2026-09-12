@@ -1,4 +1,4 @@
-
+import base64
 import json
 import uuid
 from pathlib import Path
@@ -14,7 +14,6 @@ from src.agent import get_agent
 
 st.set_page_config(
     page_title="ctrlaltcrew | AI Project Consultant",
-    page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -24,7 +23,7 @@ st.set_page_config(
 # PATHS
 # ============================================================
 
-BASE_DIR = Path(__file__).parent
+BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "assets"
 
 ROBOT_PATH = ASSETS_DIR / "robot_hello.json"
@@ -32,10 +31,10 @@ LOGO_PATH = ASSETS_DIR / "logo.png"
 
 
 # ============================================================
-# LOAD ROBOT
+# LOAD ASSETS
 # ============================================================
 
-def load_robot_animation():
+def load_robot():
     if not ROBOT_PATH.exists():
         return None
 
@@ -43,11 +42,37 @@ def load_robot_animation():
         with ROBOT_PATH.open("r", encoding="utf-8") as file:
             return json.load(file)
     except (OSError, json.JSONDecodeError) as error:
-        print("Robot animation error:", error)
+        print("Robot error:", error)
         return None
 
 
-robot_animation = load_robot_animation()
+def load_logo():
+    if not LOGO_PATH.exists():
+        return None
+
+    try:
+        encoded = base64.b64encode(
+            LOGO_PATH.read_bytes()
+        ).decode("utf-8")
+
+        suffix = LOGO_PATH.suffix.lower()
+
+        mime = {
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+        }.get(suffix, "image/png")
+
+        return f"data:{mime};base64,{encoded}"
+
+    except OSError as error:
+        print("Logo error:", error)
+        return None
+
+
+robot_animation = load_robot()
+logo_data = load_logo()
 
 
 # ============================================================
@@ -59,17 +84,16 @@ if "messages" not in st.session_state:
         {
             "role": "assistant",
             "content": (
-                "Hello. I’m the ctrlaltcrew AI Project Consultant. "
-                "Tell me about your business or the project you have "
-                "in mind, and I’ll guide you through the requirements."
+                "Hello. I’m your AI Project Consultant. "
+                "Tell me about your business or the project "
+                "you have in mind, and I’ll help you work "
+                "through the requirements."
             ),
         }
     ]
 
-
 if "thread_id" not in st.session_state:
     st.session_state.thread_id = str(uuid.uuid4())
-
 
 if "agent" not in st.session_state:
     st.session_state.agent = get_agent()
@@ -79,607 +103,596 @@ if "agent" not in st.session_state:
 # GLOBAL CSS
 # ============================================================
 
-logo_html = ""
-
-if LOGO_PATH.exists():
-    logo_html = f"""
-        <img
-            src="file:///{LOGO_PATH.as_posix()}"
-            class="brand-logo"
-            alt="ctrlaltcrew logo"
-        />
-    """
-else:
-    logo_html = """
-        <div class="brand-mark">c</div>
-    """
-
-
 st.html(
-    f"""
+    """
     <style>
 
-    /* ========================================================
-       GLOBAL
-       ======================================================== */
+    /* ======================================================
+       GLOBAL PAGE
+       ====================================================== */
 
     html,
-    body {{
-        background: #06070b !important;
-    }}
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #071321 !important;
+    }
 
-    .stApp {{
+    .stApp {
+        min-height: 100vh;
+
         background:
             radial-gradient(
-                900px 600px at 18% 4%,
-                rgba(110, 76, 220, 0.14),
-                transparent 68%
+                900px 620px at 8% 8%,
+                rgba(30, 92, 190, 0.24),
+                transparent 66%
             ),
             radial-gradient(
-                800px 600px at 88% 78%,
-                rgba(30, 116, 190, 0.09),
+                800px 620px at 92% 80%,
+                rgba(7, 181, 207, 0.14),
                 transparent 65%
             ),
-            #06070b;
+            radial-gradient(
+                550px 450px at 53% 26%,
+                rgba(91, 73, 192, 0.10),
+                transparent 72%
+            ),
+            #071321 !important;
 
-        color: #f4f5f7;
-        min-height: 100vh;
-    }}
-
-    .block-container {{
-        max-width: 1180px !important;
-        padding-top: 0.75rem !important;
-        padding-bottom: 3rem !important;
-    }}
-
-    /* Remove Streamlit's default spacing around blocks */
-
-    .stElementContainer {{
-        margin-bottom: 0 !important;
-    }}
+        color: #eef7ff;
+    }
 
 
-    /* ========================================================
+    /* ======================================================
+       REMOVE STREAMLIT CHROME
+       ====================================================== */
+
+    #MainMenu {
+        display: none !important;
+    }
+
+    footer {
+        display: none !important;
+    }
+
+    header {
+        background: transparent !important;
+    }
+
+
+    /* ======================================================
+       PAGE WIDTH
+       ====================================================== */
+
+    .block-container {
+        max-width: 1120px !important;
+
+        padding-top: 0 !important;
+        padding-bottom: 60px !important;
+
+        padding-left: 28px !important;
+        padding-right: 28px !important;
+    }
+
+
+    /* ======================================================
        HEADER
-       ======================================================== */
+       ====================================================== */
 
-    .site-header {{
-        height: 68px;
+    .site-header {
+        height: 70px;
+
         display: flex;
         align-items: center;
         justify-content: space-between;
 
-        padding: 0 0.2rem;
-
         border-bottom:
-            1px solid rgba(255,255,255,0.06);
+            1px solid rgba(118, 183, 255, 0.12);
 
-        margin-bottom: 3rem;
-    }}
+        margin-bottom: 48px;
+    }
 
-    .brand {{
+    .brand-area {
         display: flex;
         align-items: center;
         gap: 11px;
-    }}
+    }
 
-    .brand-logo {{
-        width: 31px;
-        height: 31px;
+    .brand-logo {
+        width: 32px;
+        height: 32px;
+
         object-fit: contain;
         border-radius: 8px;
-    }}
+    }
 
-    .brand-mark {{
-        width: 31px;
-        height: 31px;
+    .brand-name {
+        color: #edf6ff;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        border-radius: 9px;
-
-        background:
-            linear-gradient(
-                135deg,
-                #8b5cf6,
-                #5b21b6
-            );
-
-        color: white;
-
-        font-size: 1.05rem;
-        font-weight: 700;
-    }}
-
-    .brand-name {{
         font-size: 0.96rem;
         font-weight: 650;
-        letter-spacing: -0.015em;
-        color: #f2f3f6;
-    }}
 
-    .nav {{
+        letter-spacing: -0.015em;
+    }
+
+    .nav-area {
         display: flex;
         align-items: center;
-        gap: 2rem;
-    }}
+        gap: 26px;
+    }
 
-    .nav-item {{
-        color: #868b98;
-        text-decoration: none;
+    .nav-item {
+        color: #829bb3;
 
-        font-size: 0.78rem;
+        font-size: 0.76rem;
+        font-weight: 500;
+    }
 
-        transition: color 0.2s ease;
-    }}
+    .nav-cta {
+        color: #e5f5ff;
 
-    .nav-item:hover {{
-        color: #e7e8ed;
-    }}
-
-    .nav-cta {{
-        padding: 0.52rem 0.95rem;
-
-        border:
-            1px solid rgba(167,139,250,0.25);
+        padding: 8px 15px;
 
         border-radius: 999px;
 
-        color: #ddd7f9;
+        border:
+            1px solid rgba(60, 185, 255, 0.28);
 
         background:
-            rgba(124,58,237,0.09);
-    }}
+            rgba(18, 104, 180, 0.13);
+
+        box-shadow:
+            0 0 22px rgba(36, 150, 230, 0.08);
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        HERO
-       ======================================================== */
+       ====================================================== */
 
-    .hero {{
+    .hero {
         text-align: center;
-        position: relative;
-    }}
+    }
 
-    .hero-eyebrow {{
-        font-size: 0.68rem;
+    .eyebrow {
+        color: #55c8ff;
+
+        font-size: 0.67rem;
         font-weight: 650;
 
-        letter-spacing: 0.25em;
+        letter-spacing: 0.23em;
         text-transform: uppercase;
 
-        color: #9b82e8;
+        margin-bottom: 14px;
+    }
 
-        margin-bottom: 0.8rem;
-    }}
+    .hero-title {
+        color: #f4f9ff;
 
-    .hero-title {{
-        font-size: clamp(2.35rem, 5vw, 4rem);
+        font-size: clamp(
+            2.8rem,
+            5vw,
+            4.5rem
+        );
 
-        line-height: 1.02;
-        letter-spacing: -0.055em;
+        font-weight: 760;
 
-        font-weight: 730;
+        line-height: 1;
 
-        color: #f7f7f9;
+        letter-spacing: -0.06em;
 
         margin: 0;
-    }}
+    }
 
-    .hero-title span {{
-        color: #a78bfa;
-    }}
+    .hero-accent {
+        color: #48b9ff;
+    }
 
-    .hero-subtitle {{
+    .hero-subtitle {
         max-width: 620px;
 
-        margin: 1rem auto 0 auto;
+        margin:
+            17px auto 0 auto;
 
-        color: #8b909d;
+        color: #8ba8c2;
 
-        font-size: 0.97rem;
+        font-size: 0.94rem;
+
         line-height: 1.65;
-    }}
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        ROBOT
-       ======================================================== */
+       ====================================================== */
 
-    .robot-stage {{
-        position: relative;
+    .robot-area {
+        width: 100%;
 
-        width: 250px;
-        height: 190px;
-
-        margin: 0.35rem auto -0.15rem auto;
+        height: 220px;
 
         display: flex;
 
-        justify-content: center;
         align-items: center;
-    }}
+        justify-content: center;
 
-    .robot-stage::before {{
-        content: "";
+        position: relative;
 
+        margin:
+            2px auto 0 auto;
+    }
+
+    .robot-glow {
         position: absolute;
 
-        width: 150px;
-        height: 90px;
+        width: 190px;
+        height: 100px;
+
+        left: 50%;
+        bottom: 24px;
+
+        transform: translateX(-50%);
 
         border-radius: 50%;
 
         background:
             radial-gradient(
                 ellipse,
-                rgba(117, 87, 230, 0.26),
-                rgba(117, 87, 230, 0)
+                rgba(29, 194, 231, 0.24),
+                rgba(44, 113, 244, 0.10),
+                transparent 72%
             );
 
-        filter: blur(20px);
+        filter: blur(25px);
+    }
 
-        bottom: 25px;
-        left: 50%;
-
-        transform: translateX(-50%);
-    }}
-
-    .robot-canvas {{
-        width: 205px;
-        height: 185px;
+    .robot-holder {
+        width: 245px;
+        height: 215px;
 
         position: relative;
-        z-index: 1;
-    }}
+
+        z-index: 2;
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        WELCOME
-       ======================================================== */
+       ====================================================== */
 
-    .welcome {{
+    .welcome {
         text-align: center;
 
-        margin-top: 0;
-        margin-bottom: 1.35rem;
-    }}
+        margin:
+            0 auto 25px auto;
+    }
 
-    .welcome-title {{
-        color: #f2f3f6;
+    .welcome-title {
+        color: #eff7ff;
 
-        font-size: 1.13rem;
+        font-size: 1.08rem;
         font-weight: 620;
 
-        margin-bottom: 0.38rem;
-    }}
+        margin-bottom: 5px;
+    }
 
-    .welcome-copy {{
-        max-width: 540px;
+    .welcome-copy {
+        max-width: 560px;
 
         margin: 0 auto;
 
-        color: #777d8c;
+        color: #839cb5;
 
-        font-size: 0.83rem;
+        font-size: 0.82rem;
+
         line-height: 1.6;
-    }}
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        CHAT LABEL
-       ======================================================== */
+       ====================================================== */
 
-    .chat-shell-label {{
-        color: #626875;
+    .chat-heading {
+        display: flex;
 
-        font-size: 0.68rem;
-        font-weight: 650;
-
-        letter-spacing: 0.13em;
-        text-transform: uppercase;
+        justify-content: space-between;
+        align-items: center;
 
         margin:
-            0 0 0.55rem 0.35rem;
-    }}
+            0 4px 9px 4px;
+    }
+
+    .chat-label {
+        color: #67bde9;
+
+        font-size: 0.66rem;
+        font-weight: 650;
+
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+
+    .chat-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: #7592aa;
+
+        font-size: 0.64rem;
+    }
+
+    .status-dot {
+        width: 6px;
+        height: 6px;
+
+        border-radius: 50%;
+
+        background: #57d59a;
+    }
 
 
-    /* ========================================================
-       MAIN CHAT PANEL
-       ======================================================== */
+    /* ======================================================
+       CHAT SHELL
+       ====================================================== */
 
-    /* Streamlit bordered container */
-
-    [data-testid="stVerticalBlockBorderWrapper"] {{
+    .st-key-chat_shell {
         border:
-            1px solid rgba(255,255,255,0.075) !important;
+            1px solid rgba(73, 181, 245, 0.20) !important;
 
         border-radius: 24px !important;
 
         background:
-            rgba(255,255,255,0.025) !important;
+            linear-gradient(
+                145deg,
+                rgba(16, 39, 63, 0.94),
+                rgba(8, 24, 41, 0.96)
+            ) !important;
 
         box-shadow:
-            0 25px 80px rgba(0,0,0,0.30);
+            0 30px 100px rgba(0, 0, 0, 0.34),
+            0 0 55px rgba(25, 130, 220, 0.07) !important;
 
-        backdrop-filter: blur(18px);
-
-        padding: 0.8rem !important;
-    }}
-
-
-    /* ========================================================
-       SCROLLABLE MESSAGE AREA
-       ======================================================== */
-
-    /*
-       This targets the fixed-height Streamlit container
-       containing the conversation.
-
-       The messages scroll inside this area.
-       The input stays below it.
-    */
-
-    [data-testid="stVerticalBlockBorderWrapper"]
-    [data-testid="stVerticalBlock"] > div {{
-        scrollbar-width: thin;
-        scrollbar-color:
-            rgba(167,139,250,0.25)
-            transparent;
-    }}
+        padding: 14px !important;
+    }
 
 
-    /* ========================================================
-       CHAT MESSAGES
-       ======================================================== */
+    /* ======================================================
+       MESSAGE AREA
+       ====================================================== */
 
-    [data-testid="stChatMessage"] {{
+    .st-key-chat_history {
+        background:
+            rgba(4, 15, 27, 0.30) !important;
+
+        border-radius: 17px !important;
+
+        padding: 8px !important;
+    }
+
+
+    /* ======================================================
+       MESSAGES
+       ====================================================== */
+
+    .st-key-chat_history [data-testid="stChatMessage"] {
+        border-radius: 17px;
+
+        margin:
+            7px 2px;
+
         padding:
-            0.72rem 0.8rem;
-
-        border-radius: 18px;
-
-        margin-bottom: 0.55rem;
+            10px 14px;
 
         border:
             1px solid transparent;
-    }}
+    }
 
-    [data-testid="stChatMessage"] p {{
-        color: #e4e6ec !important;
+    .st-key-chat_history
+    [data-testid="stChatMessage"] p {
+        color: #e3f0fa !important;
 
-        font-size: 0.91rem;
-        line-height: 1.65;
-    }}
+        font-size: 0.91rem !important;
 
-    /* User message */
+        line-height: 1.68 !important;
+    }
 
-    [data-testid="stChatMessage"]:has(
-        [data-testid="chatAvatarIcon-user"]
-    ) {{
-        background:
-            rgba(124,58,237,0.095);
 
-        border-color:
-            rgba(124,58,237,0.13);
-    }}
+    /* Assistant */
 
-    /* Assistant message */
-
+    .st-key-chat_history
     [data-testid="stChatMessage"]:has(
         [data-testid="chatAvatarIcon-assistant"]
-    ) {{
+    ) {
         background:
-            rgba(255,255,255,0.018);
+            linear-gradient(
+                135deg,
+                rgba(12, 121, 155, 0.12),
+                rgba(25, 89, 174, 0.08)
+            );
 
         border-color:
-            rgba(255,255,255,0.045);
-    }}
+            rgba(75, 201, 236, 0.12);
+    }
 
-    /* Hide avatars */
 
+    /* User */
+
+    .st-key-chat_history
+    [data-testid="stChatMessage"]:has(
+        [data-testid="chatAvatarIcon-user"]
+    ) {
+        background:
+            linear-gradient(
+                135deg,
+                rgba(37, 99, 235, 0.20),
+                rgba(79, 70, 229, 0.14)
+            );
+
+        border-color:
+            rgba(72, 168, 255, 0.18);
+    }
+
+
+    /* Hide default avatars */
+
+    .st-key-chat_history
     [data-testid="stChatMessageAvatarUser"],
-    [data-testid="stChatMessageAvatarAssistant"] {{
+    .st-key-chat_history
+    [data-testid="stChatMessageAvatarAssistant"] {
         display: none !important;
-    }}
+    }
 
 
-    /* ========================================================
-       MESSAGE ROLE LABELS
-       ======================================================== */
+    /* ======================================================
+       INPUT
+       ====================================================== */
 
-    .message-role {{
-        font-size: 0.62rem;
+    .st-key-chat_form {
+        margin-top: 10px;
+    }
 
-        font-weight: 700;
-
-        letter-spacing: 0.12em;
-
-        text-transform: uppercase;
-
-        margin-bottom: 0.22rem;
-    }}
-
-    .message-role.ai {{
-        color: #a78bfa;
-    }}
-
-    .message-role.user {{
-        color: #777d8c;
-    }}
-
-
-    /* ========================================================
-       CHAT INPUT FORM
-       ======================================================== */
-
-    [data-testid="stForm"] {{
-        border: none !important;
-
-        padding: 0 !important;
-
-        margin-top: 0.75rem !important;
-
-        background: transparent !important;
-    }}
-
-    [data-testid="stForm"] > div {{
-        gap: 0 !important;
-    }}
-
-    /* Text input */
-
-    [data-testid="stForm"] input {{
+    .st-key-chat_form input {
         height: 48px !important;
 
         background:
-            rgba(13,14,21,0.96) !important;
+            rgba(5, 17, 30, 0.97) !important;
 
-        color: #f4f5f7 !important;
+        color: #f2f8fd !important;
 
         border:
-            1px solid rgba(167,139,250,0.22) !important;
+            1px solid rgba(72, 177, 245, 0.23) !important;
 
         border-radius: 15px !important;
 
         font-size: 0.90rem !important;
 
-        padding-left: 1rem !important;
-
         box-shadow:
-            0 12px 35px rgba(0,0,0,0.25);
-    }}
+            inset 0 0 0 1px
+            rgba(45, 160, 229, 0.025);
+    }
 
-    [data-testid="stForm"] input:focus {{
-        border-color:
-            rgba(167,139,250,0.45) !important;
+    .st-key-chat_form input::placeholder {
+        color: #68839c !important;
+    }
 
-        box-shadow:
-            0 0 0 1px rgba(167,139,250,0.12),
-            0 12px 35px rgba(0,0,0,0.25) !important;
-    }}
-
-    [data-testid="stForm"] input::placeholder {{
-        color: #666c79 !important;
-    }}
+    .st-key-chat_form label {
+        display: none !important;
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        SEND BUTTON
-       ======================================================== */
+       ====================================================== */
 
-    [data-testid="stFormSubmitButton"] button {{
+    .st-key-chat_form button {
         height: 48px !important;
-
-        width: 48px !important;
-
-        min-width: 48px !important;
-
-        margin-left: 0.5rem !important;
 
         border-radius: 15px !important;
 
+        color: #ffffff !important;
+
+        background:
+            linear-gradient(
+                135deg,
+                #1687e8,
+                #08a8bd
+            ) !important;
+
         border:
-            1px solid rgba(167,139,250,0.25) !important;
+            1px solid rgba(126, 226, 255, 0.28) !important;
 
-        background:
-            rgba(124,58,237,0.14) !important;
+        box-shadow:
+            0 8px 28px
+            rgba(14, 137, 221, 0.24);
+    }
 
-        color: #c4b5fd !important;
-
-        font-size: 1.2rem !important;
-
-        transition:
-            background 0.2s ease,
-            border-color 0.2s ease,
-            transform 0.2s ease;
-    }}
-
-    [data-testid="stFormSubmitButton"] button:hover {{
-        background:
-            rgba(124,58,237,0.24) !important;
-
-        border-color:
-            rgba(167,139,250,0.42) !important;
-
-        transform: translateY(-1px);
-    }}
+    .st-key-chat_form button:hover {
+        filter: brightness(1.09);
+    }
 
 
-    /* ========================================================
-       SPINNER
-       ======================================================== */
-
-    [data-testid="stSpinner"] {{
-        color: #a78bfa !important;
-    }}
-
-
-    /* ========================================================
+    /* ======================================================
        FOOTER
-       ======================================================== */
+       ====================================================== */
 
-    .footer {{
+    .footer {
         text-align: center;
 
-        margin-top: 1.15rem;
+        margin-top: 17px;
 
-        color: #454a55;
+        color: #55718a;
 
         font-size: 0.64rem;
 
         letter-spacing: 0.05em;
-    }}
+    }
 
 
-    /* ========================================================
+    /* ======================================================
        MOBILE
-       ======================================================== */
+       ====================================================== */
 
-    @media (max-width: 720px) {{
+    @media (max-width: 720px) {
 
-        .block-container {{
-            padding-left: 0.8rem !important;
-            padding-right: 0.8rem !important;
-        }}
+        .block-container {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
 
-        .site-header {{
-            margin-bottom: 2rem;
-        }}
+        .site-header {
+            margin-bottom: 34px;
+        }
 
-        .nav {{
-            gap: 0.65rem;
-        }}
-
-        .nav-item:not(.nav-cta) {{
+        .nav-item:not(.nav-cta) {
             display: none;
-        }}
+        }
 
-        .hero-title {{
-            font-size: 2.25rem;
-        }}
+        .hero-title {
+            font-size: 2.55rem;
+        }
 
-        .robot-stage {{
-            height: 170px;
-        }}
+        .robot-area {
+            height: 190px;
+        }
 
-        [data-testid="stVerticalBlockBorderWrapper"] {{
-            border-radius: 20px !important;
-        }}
-    }}
+        .robot-holder {
+            width: 215px;
+            height: 190px;
+        }
+
+        .st-key-chat_shell {
+            padding: 10px !important;
+        }
+    }
 
     </style>
+    """
+)
 
 
-    <!-- =====================================================
-         HEADER
-         ===================================================== -->
+# ============================================================
+# HEADER
+# ============================================================
 
+if logo_data:
+    logo_html = f"""
+        <img
+            src="{logo_data}"
+            class="brand-logo"
+            alt="logo"
+        />
+    """
+else:
+    logo_html = ""
+
+
+st.html(
+    f"""
     <div class="site-header">
 
-        <div class="brand">
+        <div class="brand-area">
 
             {logo_html}
 
@@ -689,7 +702,7 @@ st.html(
 
         </div>
 
-        <div class="nav">
+        <div class="nav-area">
 
             <div class="nav-item">
                 Services
@@ -706,21 +719,25 @@ st.html(
         </div>
 
     </div>
+    """
+)
 
 
-    <!-- =====================================================
-         HERO
-         ===================================================== -->
+# ============================================================
+# HERO
+# ============================================================
 
+st.html(
+    """
     <div class="hero">
 
-        <div class="hero-eyebrow">
+        <div class="eyebrow">
             AI-powered consultation
         </div>
 
-        <h1 class="hero-title">
-            AI Project <span>Consultant</span>
-        </h1>
+        <div class="hero-title">
+            AI Project <span class="hero-accent">Consultant</span>
+        </div>
 
         <div class="hero-subtitle">
             Turn your project idea into a clear scope,
@@ -728,8 +745,7 @@ st.html(
         </div>
 
     </div>
-    """,
-    unsafe_allow_javascript=False,
+    """
 )
 
 
@@ -743,11 +759,12 @@ if robot_animation:
 
     st.html(
         f"""
-        <div class="robot-stage">
+        <div class="robot-area">
 
-            <div
-                id="robot-animation"
-                class="robot-canvas">
+            <div class="robot-glow"></div>
+
+            <div class="robot-holder"
+                 id="robot-holder">
             </div>
 
         </div>
@@ -758,20 +775,26 @@ if robot_animation:
 
         <script>
 
-            const robotData = {animation_data};
+        (() => {{
+
+            const container =
+                document.getElementById("robot-holder");
+
+            if (!container || !window.lottie) {{
+                return;
+            }}
+
+            const animationData = {animation_data};
 
             lottie.loadAnimation({{
-                container:
-                    document.getElementById("robot-animation"),
-
+                container: container,
                 renderer: "svg",
-
                 loop: true,
-
                 autoplay: true,
-
-                animationData: robotData
+                animationData: animationData
             }});
+
+        }})();
 
         </script>
         """,
@@ -795,7 +818,7 @@ if len(st.session_state.messages) == 1:
 
             <div class="welcome-copy">
                 Start with your business, your idea, or the problem
-                you want to solve. I'll ask the relevant questions
+                you want to solve. I’ll ask the relevant questions
                 as we go.
             </div>
 
@@ -805,54 +828,49 @@ if len(st.session_state.messages) == 1:
 
 
 # ============================================================
-# CHAT LABEL
+# CHAT HEADER
 # ============================================================
 
 st.html(
     """
-    <div class="chat-shell-label">
-        Project consultation
+    <div class="chat-heading">
+
+        <div class="chat-label">
+            Project consultation
+        </div>
+
+        <div class="chat-status">
+            <div class="status-dot"></div>
+            AI consultant online
+        </div>
+
     </div>
     """
 )
 
 
 # ============================================================
-# CHAT PANEL
+# CHAT SHELL
 # ============================================================
 
-with st.container(border=True):
+with st.container(
+    border=True,
+    key="chat_shell",
+):
 
     # --------------------------------------------------------
-    # SCROLLABLE MESSAGE AREA
+    # MESSAGE AREA
     # --------------------------------------------------------
 
-    with st.container(height=450, border=False):
+    with st.container(
+        height=470,
+        border=False,
+        key="chat_history",
+    ):
 
         for message in st.session_state.messages:
 
-            role = message["role"]
-
-            with st.chat_message(role):
-
-                if role == "assistant":
-
-                    st.markdown(
-                        '<div class="message-role ai">'
-                        'AI CONSULTANT'
-                        '</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                else:
-
-                    st.markdown(
-                        '<div class="message-role user">'
-                        'YOU'
-                        '</div>',
-                        unsafe_allow_html=True,
-                    )
-
+            with st.chat_message(message["role"]):
                 st.markdown(message["content"])
 
 
@@ -861,20 +879,19 @@ with st.container(border=True):
     # --------------------------------------------------------
 
     with st.form(
-        key="project_consultation_form",
+        key="chat_form",
         clear_on_submit=True,
-        border=False,
     ):
 
         input_col, button_col = st.columns(
-            [1, 0.055],
+            [8.4, 1.6],
             gap="small",
         )
 
         with input_col:
 
             user_input = st.text_input(
-                "Project message",
+                "Message",
                 placeholder="Tell me about your project...",
                 label_visibility="collapsed",
             )
@@ -882,59 +899,49 @@ with st.container(border=True):
         with button_col:
 
             submitted = st.form_submit_button(
-                "→",
+                "Send",
                 use_container_width=True,
             )
 
 
 # ============================================================
-# PROCESS USER MESSAGE
+# PROCESS MESSAGE
 # ============================================================
 
 if submitted and user_input.strip():
 
-    user_input = user_input.strip()
-
-    # --------------------------------------------------------
-    # Save user message
-    # --------------------------------------------------------
+    user_message = user_input.strip()
 
     st.session_state.messages.append(
         {
             "role": "user",
-            "content": user_input,
+            "content": user_message,
         }
     )
 
 
-    # --------------------------------------------------------
-    # Generate assistant response
-    # --------------------------------------------------------
-
     try:
 
-        with st.spinner("Thinking..."):
-
-            response = st.session_state.agent.invoke(
-                {
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": user_input,
-                        }
-                    ]
-                },
-                config={
-                    "configurable": {
-                        "thread_id":
-                            st.session_state.thread_id
+        response = st.session_state.agent.invoke(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": user_message,
                     }
-                },
-            )
+                ]
+            },
+            config={
+                "configurable": {
+                    "thread_id":
+                        st.session_state.thread_id
+                }
+            },
+        )
 
-            assistant_response = (
-                response["messages"][-1].content
-            )
+        assistant_response = (
+            response["messages"][-1].content
+        )
 
     except Exception as error:
 
@@ -946,10 +953,6 @@ if submitted and user_input.strip():
         )
 
 
-    # --------------------------------------------------------
-    # Save assistant response
-    # --------------------------------------------------------
-
     st.session_state.messages.append(
         {
             "role": "assistant",
@@ -957,10 +960,6 @@ if submitted and user_input.strip():
         }
     )
 
-
-    # --------------------------------------------------------
-    # Rerun so the new conversation appears in the panel
-    # --------------------------------------------------------
 
     st.rerun()
 
@@ -976,4 +975,3 @@ st.html(
     </div>
     """
 )
-
