@@ -13,7 +13,7 @@ from src.agent import get_agent
 # ============================================================
 
 st.set_page_config(
-    page_title="AI Project Consultant",
+    page_title="ctrlaltcrew | AI Project Consultant",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -92,10 +92,10 @@ if "messages" not in st.session_state:
         {
             "role": "assistant",
             "content": (
-                "Hello. I'm your AI Project Consultant. "
-                "Tell me about your business or the project "
-                "you have in mind, and I'll help you work "
-                "through the requirements."
+                "Welcome to ctrlaltcrew's project consultation. "
+                "Tell me about your business, the problem you're trying "
+                "to solve, or the product you want to build. "
+                "I'll help you shape the requirements and find the right solution."
             ),
         }
     ]
@@ -136,7 +136,7 @@ st.html(
     body {
         margin: 0 !important;
         padding: 0 !important;
-        background: #05090f !important;
+        background: #f7f9fc !important;
     }
 
     .stApp,
@@ -151,22 +151,22 @@ st.html(
         background:
             radial-gradient(
                 1100px 720px at 10% 0%,
-                rgba(37, 99, 235, 0.22),
+                rgba(37, 99, 235, 0.07),
                 transparent 62%
             ),
             radial-gradient(
                 900px 700px at 92% 78%,
-                rgba(6, 182, 212, 0.14),
+                rgba(6, 182, 212, 0.05),
                 transparent 60%
             ),
             radial-gradient(
                 700px 560px at 50% 22%,
-                rgba(139, 92, 246, 0.10),
+                rgba(139, 92, 246, 0.04),
                 transparent 68%
             ),
-            #05090f !important;
+            #f7f9fc !important;
 
-        color: #eef6ff;
+        color: #1e293b;
     }
 
 
@@ -185,6 +185,16 @@ st.html(
     header[data-testid="stHeader"] {
         background: transparent !important;
         height: 0 !important;
+    }
+
+    /* Streamlit Community Cloud's own toolbar (Deploy button,
+       status widget, top decoration bar) lives outside
+       stHeader, so hiding stHeader alone does not remove it. */
+    [data-testid="stToolbar"],
+    [data-testid="stAppDeployButton"],
+    [data-testid="stStatusWidget"],
+    [data-testid="stDecoration"] {
+        display: none !important;
     }
 
 
@@ -214,7 +224,7 @@ st.html(
         align-items: center;
         justify-content: space-between;
 
-        border-bottom: 1px solid rgba(120, 185, 255, 0.14);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 
         margin-bottom: clamp(40px, 6vw, 72px);
     }
@@ -244,14 +254,14 @@ st.html(
 
         font-size: 0.8rem;
         font-weight: 800;
-        color: #eaf6ff;
+        color: #ffffff;
 
         background: linear-gradient(135deg, #2563eb, #06b6d4);
-        box-shadow: 0 0 22px rgba(37, 130, 235, 0.35);
+        box-shadow: 0 4px 16px rgba(37, 130, 235, 0.28);
     }
 
     .brand-name {
-        color: #f3f8ff;
+        color: #0f172a;
 
         font-size: 1.02rem;
         font-weight: 700;
@@ -266,7 +276,7 @@ st.html(
     }
 
     .nav-item {
-        color: #8ba3ba;
+        color: #64748b;
 
         font-size: 0.82rem;
         font-weight: 500;
@@ -275,18 +285,17 @@ st.html(
     }
 
     .nav-cta {
-        color: #eaf6ff;
+        color: #1d4ed8;
 
         padding: 9px 18px;
 
         border-radius: 999px;
 
-        border: 1px solid rgba(70, 190, 255, 0.32);
+        border: 1px solid rgba(37, 99, 235, 0.30);
 
-        background: rgba(24, 110, 190, 0.16);
-        backdrop-filter: blur(6px);
+        background: rgba(37, 99, 235, 0.06);
 
-        box-shadow: 0 0 24px rgba(36, 150, 230, 0.10);
+        box-shadow: none;
     }
 
 
@@ -304,7 +313,7 @@ st.html(
         align-items: center;
         gap: 8px;
 
-        color: #5fcaff;
+        color: #2563eb;
 
         font-size: 0.72rem;
         font-weight: 700;
@@ -317,20 +326,20 @@ st.html(
         padding: 6px 14px;
         border-radius: 999px;
 
-        border: 1px solid rgba(80, 200, 255, 0.22);
-        background: rgba(30, 130, 200, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.22);
+        background: rgba(37, 99, 235, 0.05);
     }
 
     .eyebrow-dot {
         width: 6px;
         height: 6px;
         border-radius: 50%;
-        background: #4fd1a5;
-        box-shadow: 0 0 8px rgba(79, 209, 165, 0.8);
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
     }
 
     .hero-title {
-        color: #f5faff;
+        color: #0f172a;
 
         font-size: clamp(2.6rem, 5.4vw, 4.7rem);
 
@@ -344,7 +353,7 @@ st.html(
     }
 
     .hero-accent {
-        background: linear-gradient(120deg, #4fb2ff, #22d3ee);
+        background: linear-gradient(120deg, #2563eb, #0891b2);
         -webkit-background-clip: text;
         background-clip: text;
         color: transparent;
@@ -355,7 +364,7 @@ st.html(
 
         margin: 20px auto 0 auto;
 
-        color: #93aec6;
+        color: #55677c;
 
         font-size: clamp(0.94rem, 1.1vw, 1.06rem);
 
@@ -364,12 +373,26 @@ st.html(
 
 
     /* ======================================================
-       ROBOT
+       INTRO ROW (robot + welcome text, side by side)
        ====================================================== */
 
+    .intro-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: clamp(20px, 4vw, 44px);
+
+        max-width: 720px;
+
+        margin: clamp(20px, 4vw, 36px) auto 32px auto;
+    }
+
     .robot-area {
-        width: 100%;
-        height: 236px;
+        width: 190px;
+        height: 190px;
+
+        flex-shrink: 0;
 
         display: flex;
 
@@ -377,18 +400,16 @@ st.html(
         justify-content: center;
 
         position: relative;
-
-        margin: clamp(16px, 3vw, 28px) auto 0 auto;
     }
 
     .robot-glow {
         position: absolute;
 
-        width: 220px;
-        height: 120px;
+        width: 170px;
+        height: 100px;
 
         left: 50%;
-        bottom: 26px;
+        bottom: 14px;
 
         transform: translateX(-50%);
 
@@ -396,23 +417,23 @@ st.html(
 
         background: radial-gradient(
             ellipse,
-            rgba(34, 211, 238, 0.26),
-            rgba(59, 130, 246, 0.12),
+            rgba(34, 211, 238, 0.18),
+            rgba(59, 130, 246, 0.10),
             transparent 72%
         );
 
-        filter: blur(28px);
+        filter: blur(20px);
         animation: robotPulse 4s ease-in-out infinite;
     }
 
     @keyframes robotPulse {
-        0%, 100% { opacity: 0.75; transform: translateX(-50%) scale(1); }
+        0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
         50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
     }
 
     .robot-holder {
-        width: 250px;
-        height: 220px;
+        width: 190px;
+        height: 180px;
 
         position: relative;
         z-index: 2;
@@ -438,9 +459,9 @@ st.html(
         align-items: center;
         justify-content: center;
 
-        background: linear-gradient(145deg, rgba(37,99,235,0.22), rgba(6,182,212,0.16));
-        border: 1px solid rgba(103, 200, 255, 0.35);
-        box-shadow: 0 0 40px rgba(45, 160, 230, 0.18);
+        background: linear-gradient(145deg, #2563eb, #06b6d4);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.22);
 
         animation: chipFloat 3.4s ease-in-out infinite;
     }
@@ -452,17 +473,17 @@ st.html(
 
 
     /* ======================================================
-       WELCOME
+       WELCOME TEXT (right side of the intro row)
        ====================================================== */
 
     .welcome {
-        text-align: center;
-
-        margin: 4px auto 28px auto;
+        text-align: left;
+        flex: 1;
+        min-width: 0;
     }
 
     .welcome-title {
-        color: #f0f8ff;
+        color: #0f172a;
 
         font-size: 1.1rem;
         font-weight: 650;
@@ -471,11 +492,7 @@ st.html(
     }
 
     .welcome-copy {
-        max-width: 560px;
-
-        margin: 0 auto;
-
-        color: #8ca3ba;
+        color: #5b6b7f;
 
         font-size: 0.86rem;
 
@@ -497,7 +514,7 @@ st.html(
     }
 
     .chat-label {
-        color: #6fc3ec;
+        color: #2563eb;
 
         font-size: 0.68rem;
         font-weight: 700;
@@ -511,7 +528,7 @@ st.html(
         align-items: center;
         gap: 7px;
 
-        color: #7f96ad;
+        color: #7c8ba0;
 
         font-size: 0.68rem;
     }
@@ -546,21 +563,15 @@ st.html(
         max-width: 900px;
         margin: 0 auto;
 
-        border: 1px solid rgba(80, 190, 245, 0.20) !important;
+        border: 1px solid rgba(15, 23, 42, 0.08) !important;
 
         border-radius: 26px !important;
 
-        background: linear-gradient(
-            160deg,
-            rgba(17, 41, 66, 0.92),
-            rgba(7, 20, 35, 0.96)
-        ) !important;
-
-        backdrop-filter: blur(10px);
+        background: #ffffff !important;
 
         box-shadow:
-            0 34px 110px rgba(0, 0, 0, 0.38),
-            0 0 60px rgba(25, 130, 220, 0.08) !important;
+            0 24px 70px rgba(15, 23, 42, 0.08),
+            0 2px 10px rgba(15, 23, 42, 0.04) !important;
 
         padding: 16px !important;
     }
@@ -571,7 +582,7 @@ st.html(
        ====================================================== */
 
     .st-key-chat_history {
-        background: rgba(4, 13, 24, 0.35) !important;
+        background: #f5f7fa !important;
 
         border-radius: 18px !important;
 
@@ -609,7 +620,7 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stChatMessageContent"] p {
-        color: #e7f2fb !important;
+        color: #1e293b !important;
         font-size: 0.93rem !important;
         line-height: 1.68 !important;
         margin: 0 0 8px 0 !important;
@@ -630,15 +641,17 @@ st.html(
     .st-key-chat_history [data-testid="stChatMessage"]:has(
         [data-testid="stChatMessageAvatarAssistant"]
     ) [data-testid="stChatMessageContent"] {
-        max-width: 84%;
+        /* !important + width:fit-content because Streamlit sets
+           its own width on this element that otherwise beats a
+           plain max-width and defeats the flex alignment above. */
+        width: fit-content !important;
+        max-width: 84% !important;
+        margin-right: auto !important;
+        margin-left: 0 !important;
 
-        background: linear-gradient(
-            135deg,
-            rgba(14, 116, 150, 0.16),
-            rgba(24, 90, 176, 0.10)
-        );
+        background: #eef4fb;
 
-        border-color: rgba(80, 205, 236, 0.16);
+        border-color: rgba(37, 99, 235, 0.12);
         border-top-left-radius: 5px;
     }
 
@@ -653,16 +666,47 @@ st.html(
     .st-key-chat_history [data-testid="stChatMessage"]:has(
         [data-testid="stChatMessageAvatarUser"]
     ) [data-testid="stChatMessageContent"] {
-        max-width: 76%;
+        width: fit-content !important;
+        max-width: 76% !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
 
-        background: linear-gradient(
-            135deg,
-            rgba(37, 99, 235, 0.30),
-            rgba(99, 82, 235, 0.20)
-        );
+        background: linear-gradient(135deg, #2563eb, #0891b2);
 
-        border-color: rgba(96, 170, 255, 0.24);
+        border-color: transparent;
         border-top-right-radius: 5px;
+    }
+
+    /* The gradient user bubble needs light text; everything
+       else in the message area defaults to dark text above. */
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stChatMessageContent"] p {
+        color: #ffffff !important;
+    }
+
+    /* If a user message happens to contain markdown (bold, links,
+       lists), keep it readable against the solid gradient bubble
+       instead of inheriting the dark-on-light defaults below. */
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stMarkdownContainer"] strong,
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stMarkdownContainer"] li,
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stMarkdownContainer"] ul,
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stMarkdownContainer"] ol {
+        color: #ffffff !important;
+    }
+
+    .st-key-chat_history [data-testid="stChatMessage"]:has(
+        [data-testid="stChatMessageAvatarUser"]
+    ) [data-testid="stMarkdownContainer"] a {
+        color: #e0f2ff !important;
     }
 
 
@@ -677,12 +721,12 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] strong {
-        color: #ffffff;
+        color: #0f172a;
         font-weight: 700;
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] a {
-        color: #6fd3ff;
+        color: #1d4ed8;
         text-decoration: underline;
         text-underline-offset: 2px;
     }
@@ -691,7 +735,7 @@ st.html(
     .st-key-chat_history [data-testid="stMarkdownContainer"] ol {
         margin: 4px 0 8px 0;
         padding-left: 20px;
-        color: #e7f2fb;
+        color: #1e293b;
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] li {
@@ -701,9 +745,9 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] code {
-        background: rgba(6, 18, 32, 0.75);
-        border: 1px solid rgba(90, 190, 240, 0.18);
-        color: #7fe0ff;
+        background: rgba(15, 23, 42, 0.06);
+        border: 1px solid rgba(15, 23, 42, 0.10);
+        color: #0e7490;
         border-radius: 5px;
         padding: 1px 6px;
         font-family: 'JetBrains Mono', monospace;
@@ -711,8 +755,8 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] pre {
-        background: rgba(5, 14, 26, 0.85);
-        border: 1px solid rgba(90, 190, 240, 0.18);
+        background: #f1f5f9;
+        border: 1px solid rgba(15, 23, 42, 0.10);
         border-radius: 12px;
         padding: 12px 14px;
         overflow-x: auto;
@@ -728,17 +772,17 @@ st.html(
         margin: 6px 0;
         padding: 8px 14px;
 
-        border-left: 3px solid #f5b942;
+        border-left: 3px solid #d97706;
         border-radius: 6px;
 
-        background: rgba(245, 185, 66, 0.08);
-        color: #f2dcb0;
+        background: rgba(217, 119, 6, 0.08);
+        color: #7c4a05;
 
         font-size: 0.88rem;
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] hr {
-        border-color: rgba(120, 185, 255, 0.14);
+        border-color: rgba(15, 23, 42, 0.10);
         margin: 10px 0;
     }
 
@@ -750,7 +794,7 @@ st.html(
 
         margin: 8px 0 4px 0;
 
-        border: 1px solid rgba(90, 190, 240, 0.20);
+        border: 1px solid rgba(15, 23, 42, 0.10);
         border-radius: 12px;
         overflow: hidden;
 
@@ -758,18 +802,18 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] thead th {
-        background: rgba(37, 99, 235, 0.22);
-        color: #eaf6ff;
+        background: rgba(37, 99, 235, 0.10);
+        color: #0f172a;
         font-weight: 700;
         text-align: left;
         padding: 9px 12px;
-        border-bottom: 1px solid rgba(90, 190, 240, 0.20);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.10);
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] tbody td {
         padding: 9px 12px;
-        color: #dcecf9;
-        border-bottom: 1px solid rgba(90, 190, 240, 0.10);
+        color: #334155;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.06);
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] tbody tr:last-child td {
@@ -777,7 +821,7 @@ st.html(
     }
 
     .st-key-chat_history [data-testid="stMarkdownContainer"] tbody tr:nth-child(even) {
-        background: rgba(90, 190, 240, 0.05);
+        background: rgba(15, 23, 42, 0.02);
     }
 
 
@@ -785,27 +829,39 @@ st.html(
        TYPING INDICATOR
        ====================================================== */
 
+    .typing-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 2px 2px;
+    }
+
+    .typing-indicator-label {
+        color: #9fc3dd;
+        font-size: 0.86rem;
+    }
+
     .typing-dots {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 3px 2px;
+        gap: 6px;
     }
 
     .typing-dots span {
-        width: 6px;
-        height: 6px;
+        width: 9px;
+        height: 9px;
         border-radius: 50%;
-        background: #8fd6ff;
-        animation: typingBounce 1.2s infinite ease-in-out;
+        background: #4fd1e8;
+        box-shadow: 0 0 8px rgba(79, 209, 232, 0.7);
+        animation: typingBounce 1.1s infinite ease-in-out;
     }
 
-    .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.16s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.32s; }
 
     @keyframes typingBounce {
-        0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-        30% { transform: translateY(-4px); opacity: 1; }
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+        30% { transform: translateY(-6px); opacity: 1; }
     }
 
 
@@ -813,11 +869,11 @@ st.html(
        INPUT
        ====================================================== */
 
-    .st-key-chat_form {
+    [data-testid="stForm"] {
         margin-top: 12px;
     }
 
-    .st-key-chat_form input {
+    [data-testid="stForm"] input {
         height: 50px !important;
 
         background: rgba(5, 15, 27, 0.97) !important;
@@ -831,20 +887,20 @@ st.html(
         font-size: 0.92rem !important;
     }
 
-    .st-key-chat_form input:focus {
+    [data-testid="stForm"] input:focus {
         border-color: rgba(95, 200, 255, 0.55) !important;
         box-shadow: 0 0 0 3px rgba(56, 170, 235, 0.14) !important;
     }
 
-    .st-key-chat_form input::placeholder {
+    [data-testid="stForm"] input::placeholder {
         color: #6c8398 !important;
     }
 
-    .st-key-chat_form input:disabled {
+    [data-testid="stForm"] input:disabled {
         opacity: 0.55 !important;
     }
 
-    .st-key-chat_form label {
+    [data-testid="stForm"] label {
         display: none !important;
     }
 
@@ -853,7 +909,7 @@ st.html(
        SEND BUTTON
        ====================================================== */
 
-    .st-key-chat_form button {
+    [data-testid="stForm"] button {
         height: 50px !important;
 
         border-radius: 15px !important;
@@ -870,15 +926,15 @@ st.html(
         transition: filter 0.15s ease, transform 0.1s ease;
     }
 
-    .st-key-chat_form button:hover:not(:disabled) {
+    [data-testid="stForm"] button:hover:not(:disabled) {
         filter: brightness(1.1);
     }
 
-    .st-key-chat_form button:active:not(:disabled) {
+    [data-testid="stForm"] button:active:not(:disabled) {
         transform: scale(0.98);
     }
 
-    .st-key-chat_form button:disabled {
+    [data-testid="stForm"] button:disabled {
         opacity: 0.55 !important;
         filter: grayscale(0.3);
     }
@@ -917,21 +973,28 @@ st.html(
             margin-bottom: 30px;
         }
 
-        .nav-item:not(.nav-cta) {
-            display: none;
-        }
-
         .hero-title {
             font-size: 2.4rem;
         }
 
+        .intro-row {
+            flex-direction: column;
+            text-align: center;
+            gap: 14px;
+        }
+
+        .welcome {
+            text-align: center;
+        }
+
         .robot-area {
-            height: 180px;
+            width: 160px;
+            height: 160px;
         }
 
         .robot-holder {
-            width: 200px;
-            height: 180px;
+            width: 160px;
+            height: 150px;
         }
 
         .st-key-chat_shell {
@@ -949,7 +1012,7 @@ st.html(
         .st-key-chat_history [data-testid="stChatMessage"]:has(
             [data-testid="stChatMessageAvatarUser"]
         ) [data-testid="stChatMessageContent"] {
-            max-width: 92%;
+            max-width: 92% !important;
         }
     }
 
@@ -977,8 +1040,6 @@ st.html(
         </div>
 
         <div class="nav-area">
-            <div class="nav-item">Services</div>
-            <div class="nav-item">Process</div>
             <div class="nav-item nav-cta">Start a Project</div>
         </div>
 
@@ -993,29 +1054,28 @@ st.html(
 
 st.html(
     """
-    <div class="hero">
+    <div class="eyebrow">
+    <span class="eyebrow-dot"></span>
+    START A PROJECT WITH CTRLALTcrew
+</div>
 
-        <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            AI-powered consultation
-        </div>
+<div class="hero-title">
+    Let's build something <span class="hero-accent">useful.</span>
+</div>
 
-        <div class="hero-title">
-            AI Project <span class="hero-accent">Consultant</span>
-        </div>
+<div class="hero-subtitle">
+    Tell us what you're trying to build. Our AI Project Consultant
+    will help you define the right solution, scope the project,
+    and understand the next steps.
+</div>
 
-        <div class="hero-subtitle">
-            Turn your project idea into a clear scope,
-            practical recommendation, and next steps.
-        </div>
-
-    </div>
+    
     """
 )
 
 
 # ============================================================
-# ROBOT
+# INTRO ROW: ROBOT + WELCOME TEXT (side by side)
 #
 # Root cause of the animation not rendering: the previous
 # implementation injected a `<script src="...lottie.min.js">`
@@ -1034,6 +1094,10 @@ st.html(
 # one so reruns don't leak animation frames. A lightweight CSS
 # fallback chip is shown immediately so there is never a blank
 # gap even before the library loads or if it fails outright.
+#
+# The welcome text now always sits next to the robot (instead of
+# only appearing before the first message) so the layout doesn't
+# go lopsided once the conversation starts.
 # ============================================================
 
 if robot_animation:
@@ -1042,15 +1106,29 @@ if robot_animation:
 
     st.html(
         f"""
-        <div class="robot-area">
+        <div class="intro-row">
 
-            <div class="robot-glow"></div>
+            <div class="robot-area">
 
-            <div class="robot-holder" id="robot-holder">
-                <div class="robot-fallback" id="robot-fallback">
-                    <div class="robot-fallback-chip"></div>
+                <div class="robot-glow"></div>
+
+                <div class="robot-holder" id="robot-holder">
+                    <div class="robot-fallback" id="robot-fallback">
+                        <div class="robot-fallback-chip"></div>
+                    </div>
                 </div>
+
             </div>
+
+            <div class="welcome-title">
+    Start your project conversation.
+</div>
+
+<div class="welcome-copy">
+    Share your business, idea, or the problem you want to solve.
+    We'll ask the right questions and help you figure out what
+    to build next.
+</div>
 
         </div>
 
@@ -1110,22 +1188,33 @@ if robot_animation:
         unsafe_allow_javascript=True,
     )
 
+else:
 
-# ============================================================
-# WELCOME (first-time empty state)
-# ============================================================
-
-if len(st.session_state.messages) == 1:
-
+    # No animation file found - still show the welcome text next to
+    # the static fallback chip so the layout never depends on the
+    # asset being present.
     st.html(
         """
-        <div class="welcome">
-            <div class="welcome-title">Let's talk about your project.</div>
-            <div class="welcome-copy">
-                Start with your business, your idea, or the problem
-                you want to solve. I'll ask the relevant questions
-                as we go.
+        <div class="intro-row">
+
+            <div class="robot-area">
+                <div class="robot-glow"></div>
+                <div class="robot-holder">
+                    <div class="robot-fallback">
+                        <div class="robot-fallback-chip"></div>
+                    </div>
+                </div>
             </div>
+
+            <div class="welcome">
+                <div class="welcome-title">Let's talk about your project.</div>
+                <div class="welcome-copy">
+                    Start with your business, your idea, or the problem
+                    you want to solve. I'll ask the relevant questions
+                    as we go.
+                </div>
+            </div>
+
         </div>
         """
     )
@@ -1170,8 +1259,12 @@ with st.container(border=True, key="chat_shell"):
         if st.session_state.pending:
             with st.chat_message("assistant"):
                 st.markdown(
-                    '<div class="typing-dots"><span></span><span></span>'
-                    '<span></span></div>',
+                    '<div class="typing-indicator">'
+                    '<span class="typing-indicator-label">Thinking</span>'
+                    '<div class="typing-dots">'
+                    '<span></span><span></span><span></span>'
+                    '</div>'
+                    '</div>',
                     unsafe_allow_html=True,
                 )
 
