@@ -12,9 +12,6 @@
 ![Hugging Face](https://img.shields.io/badge/HuggingFace-FFD21E?logo=huggingface&logoColor=black)
 ![CSV](https://img.shields.io/badge/CSV%20Storage-217346?logo=googlesheets&logoColor=white)
 
-   <p align="center">
-     <img src="assets/banner.svg" alt="AI Project Consultant Banner" width="600">
-   </p>
 
 > **An Agentic AI assistant that turns project conversations into structured requirements, relevant solutions, and actionable project insights.**
 
